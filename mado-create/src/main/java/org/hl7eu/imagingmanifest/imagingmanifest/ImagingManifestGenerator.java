@@ -2,7 +2,7 @@ package org.hl7eu.imagingmanifest.imagingmanifest;
 
 import org.apache.commons.cli.*;
 import org.hl7eu.imagingmanifest.imagingmanifest.loader.DicomFileLoader;
-import org.hl7eu.imagingmanifest.imagingmanifest.manifest.FhirManifest;
+import org.hl7eu.imagingmanifest.imagingmanifest.manifest.fhir.FhirManifest;
 import org.hl7eu.imagingmanifest.imagingmanifest.manifest.InventoryManifest;
 import org.hl7eu.imagingmanifest.imagingmanifest.manifest.KosManifest;
 import org.hl7eu.imagingmanifest.imagingmanifest.model.DicomManifest;

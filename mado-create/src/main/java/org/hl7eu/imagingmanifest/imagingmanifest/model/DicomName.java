@@ -18,6 +18,7 @@ public class DicomName {
     String prefix;
     String suffix;
 
+    public DicomName() {}
     public DicomName(PersonName personName) {
         setLastName( personName.get( PersonName.Component.FamilyName) );
         setFirstName( personName.get( PersonName.Component.GivenName) );
