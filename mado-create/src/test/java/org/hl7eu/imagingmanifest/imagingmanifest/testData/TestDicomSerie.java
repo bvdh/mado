@@ -8,6 +8,8 @@ public class TestDicomSerie extends DicomSerie {
         setModality( "CT" );
         setSeriesDescription( "TestSeriesDescription" );
         setSeriesNumber( 1 );
+        setBodyPartExamined( "HEAD" );
+        setLaterality( "B" );
 
         addDicomInstance( new TestDicomInstance( 1 ) );
         addDicomInstance( new TestDicomInstance( 2 ) );

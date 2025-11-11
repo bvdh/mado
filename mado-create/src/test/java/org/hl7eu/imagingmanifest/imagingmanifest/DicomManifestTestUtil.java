@@ -24,8 +24,22 @@ public class DicomManifestTestUtil {
         assertEquals( source.getStudyDescription(), target.getStudyDescription() );
         assertEquals( source.getModalities(), target.getModalities() );
         testPatient( source.getPatient(), target.getPatient() );
-
+        testGeneralEquipment( source.getGeneralEquipment(), target.getGeneralEquipment() );
         testSeriesList( source.getSeries(), target.getSeries() );
+    }
+
+    private static void testGeneralEquipment(DicomGeneralEquipment source, DicomGeneralEquipment target) {
+        if (source==null || target==null  ) { assertEquals( source, target );  };
+        assertEquals( source.getManufacturer(), target.getManufacturer() );
+        assertEquals( source.getInstitutionName(), target.getInstitutionName() );
+        testCodeSequence( source.getInstitutionCodeSequence(), target.getInstitutionCodeSequence() );
+    }
+
+    private static void testCodeSequence(DicomCodeSequence source, DicomCodeSequence target) {
+        if (source==null || target==null  ) { assertEquals( source, target );  };
+        assertEquals( source.getCodeValue(), target.getCodeValue() );
+        assertEquals( source.getCodingSchemeDesignator(), target.getCodingSchemeDesignator() );
+        assertEquals( source.getCodeMeaning(), target.getCodeMeaning() );
     }
 
     private static void testSeriesList(List<DicomSerie> source, List<DicomSerie> target ){
@@ -55,7 +69,7 @@ public class DicomManifestTestUtil {
     }
 
     private static void testPatient(DicomPatient source, DicomPatient target ) {
-        if (source==null || target==null  ) { assertEquals( source, target );  };
+        if (source==null || target==null  ) { assertEquals( source, target );  }
         assertEquals( source.getId(), target.getId() );
         assertEquals( source.getIssuer(), target.getIssuer() );
 //        testDicomIssuerInfo( source.getIssuerInfo(), target.getIssuerInfo() );

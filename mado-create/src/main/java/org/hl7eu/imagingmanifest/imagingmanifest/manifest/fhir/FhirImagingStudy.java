@@ -21,7 +21,7 @@ public class FhirImagingStudy {
                 .setSubject( new Reference()
                         .setReference( patient!=null ? "Patient/" + patient.getId() : null)
                         .setDisplay( patient!=null && !patient.getName().isEmpty() ?
-                                patient.getName().get(0).getNameAsSingleString() : null
+                                patient.getName().getFirst().getNameAsSingleString() : null
                         )
                         .setType( "Patient" )
                 )
@@ -57,10 +57,8 @@ public class FhirImagingStudy {
 
         );
 
-        Optional.ofNullable( dicomStudy.getStudyDateTime() ).ifPresent( value -> imagingStudy.setStarted( value ));
-        serviceRequests.stream().forEach( serviceRequest -> {
-            imagingStudy.addBasedOn( FhirUtil.getReference( serviceRequest ) );
-        });
+        Optional.ofNullable( dicomStudy.getStudyDateTime() ).ifPresent(imagingStudy::setStarted);
+        serviceRequests.forEach(serviceRequest -> imagingStudy.addBasedOn( FhirUtil.getReference( serviceRequest ) ));
 
         //    numberOfSeries	(0020,1206)
         imagingStudy.setNumberOfSeries( dicomStudy.getSeries().size() );
@@ -111,12 +109,12 @@ public class FhirImagingStudy {
             // endpoint
             series.setBodySite( new Coding()
                     .setCode( dicomSerie.getBodyPartExamined() )
-                    .setSystem( "https://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_4.html" )
+                    .setSystem( "http://snomed.info/sct" )
             );
             if ( series.getLaterality() != null ) {
                 series.setLaterality( new Coding()
                         .setCode( dicomSerie.getLaterality() )
-                        .setSystem( "http://dicom.nema.org/medical/dicom/current/output/chtml/part16/sect_CID_244.html" )
+                        .setSystem( "http://snomed.info/sct" )
                 );
             }
             // TODO specimen
@@ -163,39 +161,42 @@ public class FhirImagingStudy {
                 }
             }
         });
-        Optional.ofNullable( imagingStudy.getBasedOn() ).get().stream().forEach( basedOn -> {
-            if ( basedOn.getIdentifier()!=null ) {
-                Identifier identifier = basedOn.getIdentifier();
-                Optional.ofNullable(identifier.getType()).ifPresent(type -> {
-                    if ( type.hasCoding( "http://terminology.hl7.org/CodeSystem/v2-0203", "ACSN" ) ){
-                        DicomIssuerInfo dicomIssuerInfo = new DicomIssuerInfo();
-                        String issuer = identifier.getSystem();
-                        if ( issuer!=null ){
-                            if ( issuer.startsWith("urn:uri:") ) {
-                                dicomIssuerInfo.setUniversalEntityIDType( "URI" );
-                                dicomIssuerInfo.setUniversivalEntityID( issuer.substring(8) );
-                                dicomStudy.setAccessionNumber( identifier.getValue().substring(8) );
-                            } else if ( issuer.startsWith("urn:oid:") ) {
-                                dicomIssuerInfo.setUniversalEntityIDType( "ISO" );
-                                dicomIssuerInfo.setUniversivalEntityID( issuer.substring(8) );
-                                dicomStudy.setAccessionNumber( identifier.getValue().substring(8) );
-                            } else {
-                                dicomIssuerInfo.setUniversalEntityIDType( "UUID" );
-                                dicomIssuerInfo.setUniversivalEntityID( issuer );
-                                dicomStudy.setAccessionNumber( identifier.getValue() );
-                            }
-                        }
-                        dicomStudy.setAccessionNumberIssuer( dicomIssuerInfo );
+        Optional.ofNullable( imagingStudy.getBasedOn() ).ifPresent( basedOns ->
+                basedOns.forEach( basedOn -> {
+                    if ( basedOn.getIdentifier()!=null ) {
+                        Identifier identifier = basedOn.getIdentifier();
+                        Optional.ofNullable(identifier.getType()).ifPresent(type -> {
+                            if ( type.hasCoding( "http://terminology.hl7.org/CodeSystem/v2-0203", "ACSN" ) ){
+                                DicomIssuerInfo dicomIssuerInfo = new DicomIssuerInfo();
+                                String issuer = identifier.getSystem();
+                                if ( issuer!=null ){
+                                    if ( issuer.startsWith("urn:uri:") ) {
+                                        dicomIssuerInfo.setUniversalEntityIDType( "URI" );
+                                        dicomIssuerInfo.setUniversivalEntityID( issuer.substring(8) );
+                                        dicomStudy.setAccessionNumber( identifier.getValue().substring(8) );
+                                    } else if ( issuer.startsWith("urn:oid:") ) {
+                                        dicomIssuerInfo.setUniversalEntityIDType( "ISO" );
+                                        dicomIssuerInfo.setUniversivalEntityID( issuer.substring(8) );
+                                        dicomStudy.setAccessionNumber( identifier.getValue().substring(8) );
+                                    } else {
+                                        dicomIssuerInfo.setUniversalEntityIDType( "UUID" );
+                                        dicomIssuerInfo.setUniversivalEntityID( issuer );
+                                        dicomStudy.setAccessionNumber( identifier.getValue() );
+                                    }
+                                }
+                                dicomStudy.setAccessionNumberIssuer( dicomIssuerInfo );
 
+                            }
+                        });
                     }
-                });
-            }
-        });
+                })
+        );
         dicomStudy.setStudyDescription( imagingStudy.getDescription() );
         dicomStudy.setStudyDateTime( imagingStudy.getStarted() );
         dicomStudy.setModalities( imagingStudy.getModality().stream().map( Coding::getCode)
                 .collect( java.util.stream.Collectors.toSet() )
         );
+
 
         imagingStudy.getSeries().stream()
                 .map(FhirImagingStudy::populateDicomSerie)
@@ -210,7 +211,12 @@ public class FhirImagingStudy {
         dicomSerie.setModality( series.getModality().getCode() );
         dicomSerie.setSeriesNumber( series.getNumber() );
         dicomSerie.setSeriesDescription( series.getDescription() );
-
+        dicomSerie.setBodyPartExamined(
+                series.getBodySite()!=null ? series.getBodySite().getCode() : null
+        );
+        dicomSerie.setLaterality(
+                series.getLaterality()!=null ? series.getLaterality().getCode() : null
+        );
         series.getInstance().stream()
                 .map( instance -> populateDicomInstance( instance ) )
                 .forEach(dicomSerie::addDicomInstance);

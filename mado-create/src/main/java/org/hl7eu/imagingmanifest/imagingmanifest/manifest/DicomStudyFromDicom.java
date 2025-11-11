@@ -29,6 +29,16 @@ public class DicomStudyFromDicom {
         dicomStudy.setPatient( createPatient( dcmObj ) );
         dicomStudy.setGeneralEquipment( createGeneralEquipment( dcmObj ) );
 
+//        if ( dcmObj.contains( Tag.AnatomicRegionSequence ) ){
+//            DicomCodeSequence anatomicRegion = new DicomCodeSequence();
+//            Sequence anatomicRegionSeq = dcmObj.getSequence( Tag.AnatomicRegionSequence );
+//            Attributes attributes = anatomicRegionSeq.getFirst();
+//            anatomicRegion.setCodeValue( attributes.getString( Tag.CodeValue ) );
+//            anatomicRegion.setCodeMeaning( attributes.getString( Tag.CodeMeaning ) );
+//            anatomicRegion.setCodingSchemeDesignator( attributes.getString( Tag.CodingSchemeDesignator ) );
+//            dicomStudy.setAnatomicalRegion( anatomicRegion );
+//        }
+
         addInstance( dcmObj );
     }
 
@@ -102,6 +112,7 @@ public class DicomStudyFromDicom {
                     dcmObj.getDate( Tag.SeriesDate ),
                     dcmObj.getDate( Tag.SeriesTime )
             ) );
+            serie.setBodyPartExamined( dcmObj.getString(Tag.BodyPartExamined) );
             dicomStudy.addSerie( serie );
         }
         DicomInstance instance = new DicomInstance();

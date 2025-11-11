@@ -20,6 +20,8 @@ public class DicomStudy {
     private Set<String> modalities = new HashSet<>();
     private DicomPatient patient;
     private DicomGeneralEquipment generalEquipment;
+//    private DicomCodeSequence anatomicalRegion;
+
     public DicomStudy() {
     }
 
@@ -31,6 +33,8 @@ public class DicomStudy {
         studyDescription = source.studyDescription;
         accessionNumber = source.accessionNumber;
         modalities = source.modalities;
+
+        // TODO specimen
     }
 
     public void addSeries(DicomSerie dcmSerie)
