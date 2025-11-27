@@ -15,7 +15,6 @@ public class TestDicomPatient extends DicomPatient {
         setBirthDate(Date.from(LocalDate.parse("2018-05-05").atStartOfDay(ZoneId.systemDefault()).toInstant()) );
         setGender("F");
         setId("TestPatientId");
-        setIdIssuer("PatientTestIssuerId");
         setIdIssuer( "PatientIdIssuer" );
         DicomName name1 = new DicomName();
             name1.setLastName("TestFamilyName");

@@ -4,7 +4,7 @@ import org.apache.commons.cli.*;
 import org.hl7eu.imagingmanifest.imagingmanifest.loader.DicomFileLoader;
 import org.hl7eu.imagingmanifest.imagingmanifest.manifest.fhir.FhirManifest;
 import org.hl7eu.imagingmanifest.imagingmanifest.manifest.InventoryManifest;
-import org.hl7eu.imagingmanifest.imagingmanifest.manifest.KosManifest;
+import org.hl7eu.imagingmanifest.imagingmanifest.manifest.kos1.KosManifest;
 import org.hl7eu.imagingmanifest.imagingmanifest.model.DicomManifest;
 import org.hl7eu.imagingmanifest.imagingmanifest.model.DicomStudy;
 

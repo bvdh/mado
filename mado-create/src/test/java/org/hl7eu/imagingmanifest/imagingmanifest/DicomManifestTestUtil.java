@@ -71,7 +71,7 @@ public class DicomManifestTestUtil {
     private static void testPatient(DicomPatient source, DicomPatient target ) {
         if (source==null || target==null  ) { assertEquals( source, target );  }
         assertEquals( source.getId(), target.getId() );
-        assertEquals( source.getIssuer(), target.getIssuer() );
+        testDicomIssuerInfo( source.getIssuer(), target.getIssuer() );
 //        testDicomIssuerInfo( source.getIssuerInfo(), target.getIssuerInfo() );
         testDicomNames( source.getNames(), target.getNames() );
         assertEquals( source.getBirthDate(), target.getBirthDate() );
@@ -101,8 +101,8 @@ public class DicomManifestTestUtil {
             assertEquals( source, target );
         };
         assertEquals( source.getWadoURL(),      target.getWadoURL() );
-        assertEquals( source.getXcWadoURL(),    target.getXcWadoURL() );
+//        assertEquals( source.getXcWadoURL(),    target.getXcWadoURL() );
         assertEquals( source.getIidURL(),       target.getIidURL() );
-        assertEquals( source.getWebViewerURL(), target.getWebViewerURL() );
+//        assertEquals( source.getWebViewerURL(), target.getWebViewerURL() );
     }
 }

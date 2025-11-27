@@ -16,6 +16,14 @@ public class FhirProcedure {
                 .addUsedReference( FhirUtil.getReference( device ) )
                 .setId( UUID.randomUUID().toString() );
 
+        if ( dicomStudy.getAnatomicalRegion() !=null ) {
+            procedure.addBodySite()
+                .addCoding()
+                        .setCode( dicomStudy.getAnatomicalRegion().getCodeValue() )
+                        .setSystem( dicomStudy.getAnatomicalRegion().getCodingSchemeDesignator() )
+                        .setDisplay( dicomStudy.getAnatomicalRegion().getCodeMeaning() )
+            ;
+        }
         serviceRequests.forEach(serviceRequest -> procedure.addBasedOn( FhirUtil.getReference( serviceRequest ) ));
         return procedure;
 

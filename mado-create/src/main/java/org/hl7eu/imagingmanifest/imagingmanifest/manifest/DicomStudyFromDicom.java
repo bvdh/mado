@@ -6,6 +6,7 @@ import org.hl7eu.imagingmanifest.imagingmanifest.DicomUtil;
 import org.hl7eu.imagingmanifest.imagingmanifest.model.*;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 public class DicomStudyFromDicom {
     DicomStudy dicomStudy = new DicomStudy();
@@ -25,7 +26,7 @@ public class DicomStudyFromDicom {
         //    started	(0008,0020)+(0008,0030)
         Date studyDate = dcmObj.getDate( Tag.StudyDate );
         Date studyTime = dcmObj.getDate( Tag.StudyTime );
-        dicomStudy.setStudyDateTime( DicomUtil.getDateFromDicomDateAndTime(studyDate, studyTime) );
+        dicomStudy.setStudyDateTime( DicomUtil.getDateFromDicomDateAndTime(studyDate, studyTime, TimeZone.getTimeZone( dicomStudy.getTimeZone())) );
         dicomStudy.setPatient( createPatient( dcmObj ) );
         dicomStudy.setGeneralEquipment( createGeneralEquipment( dcmObj ) );
 
@@ -84,7 +85,7 @@ public class DicomStudyFromDicom {
             }
         }
         if ( dcmObj.contains( Tag.PatientBirthDate ) ){
-            dicomPatient.setBirthDate( DicomUtil.getDateFromDicomDateAndTime( dcmObj.getDate( Tag.PatientBirthDate ), dcmObj.getDate( Tag.PatientBirthTime ) ) );
+            dicomPatient.setBirthDate( DicomUtil.getDateFromDicomDateAndTime( dcmObj.getDate( Tag.PatientBirthDate ), dcmObj.getDate( Tag.PatientBirthTime ), TimeZone.getTimeZone( dicomStudy.getTimeZone()) ) );
         }
 
 
@@ -110,7 +111,8 @@ public class DicomStudyFromDicom {
             serie.setBodyPartExamined( dcmObj.getString(Tag.BodyPartExamined) );
             serie.setSeriesDateTime( DicomUtil.getDateFromDicomDateAndTime(
                     dcmObj.getDate( Tag.SeriesDate ),
-                    dcmObj.getDate( Tag.SeriesTime )
+                    dcmObj.getDate( Tag.SeriesTime ),
+                    TimeZone.getTimeZone( dicomStudy.getTimeZone())
             ) );
             serie.setBodyPartExamined( dcmObj.getString(Tag.BodyPartExamined) );
             dicomStudy.addSerie( serie );

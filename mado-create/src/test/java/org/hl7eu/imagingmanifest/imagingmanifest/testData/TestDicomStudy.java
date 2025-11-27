@@ -16,14 +16,14 @@ public class TestDicomStudy extends DicomStudy {
         setAccessionNumberIssuer( new TestDicomIssuerInfo("AccessionNumber") );
         setStudyDateTime( new Date() );
 
-//        DicomCodeSequence anatomicalRegion = new DicomCodeSequence();
-//        anatomicalRegion.setCodeValue( "T-D0050" );
-//        anatomicalRegion.setCodeMeaning( "Head and Neck" );
-//        anatomicalRegion.setCodingSchemeDesignator( "SCT" );
-//        setAnatomicalRegion( anatomicalRegion );
+        DicomCodeSequence anatomicalRegion = new DicomCodeSequence();
+        anatomicalRegion.setCodeValue( "T-D0050" );
+        anatomicalRegion.setCodeMeaning( "Head and Neck" );
+        anatomicalRegion.setCodingSchemeDesignator( "SCT" );
+        setAnatomicalRegion( anatomicalRegion );
 
         setGeneralEquipment( new TestDicomGeneralEquipment( "GE") );
-        setModalities( Set.of("CT","SR") );
+        setModalities( Set.of("CT") );
         setPatient( new TestDicomPatient() );
 
         addSerie( new TestDicomSerie( 1 ) );

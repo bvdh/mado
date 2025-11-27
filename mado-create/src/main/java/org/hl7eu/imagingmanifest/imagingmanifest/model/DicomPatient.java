@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 public class DicomPatient {
     String id;
-    DicomIssuerInfo issuer;
+    DicomIssuerInfo issuer = new DicomIssuerInfo();
     String idIssuer;
     List<DicomName> names = new ArrayList<>();
     String gender;
