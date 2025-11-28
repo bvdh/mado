@@ -1,23 +1,24 @@
 package org.hl7eu.imagingmanifest.fhir;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.hl7.fhir.r4.model.*;
 import org.hl7eu.imagingmanifest.model.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-
-import static org.apache.jena.vocabulary.SchemaDO.device;
 
 public class FhirManifest implements ManifestInterface {
 
+  @Getter
   private Bundle bundle;
+  @Getter
   private Patient patient;
+  @Getter
   private ImagingStudy imagingStudy;
+  @Getter
   private ServiceRequest requestedProcedure;
-  private Device mainGeneralEquipmentDevice; // the common one to be used in KOS, a study may have multiple devices
-  private List<Device> generalEquipmentDevices = new ArrayList<>();
-  private Provenance manifestAuthor;
+
+  private FhirManifestAuthor manifestAuthor;
 
   public FhirManifest( Bundle bundle ) {
     this.bundle = bundle;
@@ -28,26 +29,9 @@ public class FhirManifest implements ManifestInterface {
           this.patient = imagingStudy.hasSubject() && imagingStudy.getSubject().hasReference()
             ? (Patient)getResourceFromBundle( bundle, imagingStudy.getSubject().getReference() )
             : new Patient();
-
-          for ( ImagingStudy.ImagingStudySeriesComponent series: imagingStudy.getSeries() ) {
-            if ( series.hasPerformer() ) {
-              for ( var performer : series.getPerformer() ) {
-                if ( performer.hasActor() && performer.getActor().hasReference() ) {
-                  Resource actor = getResourceFromBundle( bundle, performer.getActor().getReference() );
-                  if ( performer.hasFunction() ){
-                    if ( performer.getFunction().hasCoding(  "http://terminology.hl7.org/CodeSystem/v3-ParticipationType", "DEV" ) &&
-                        actor instanceof Device
-                    ) {
-                      generalEquipmentDevices.add((Device) actor);
-                      if (mainGeneralEquipmentDevice == null) {
-                        mainGeneralEquipmentDevice = (Device) actor;
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+        }
+        if ( entry.hasResource() && entry.getResource() instanceof Provenance) {
+          this.manifestAuthor = (Provenance) entry.getResource();
         }
       });
     }
@@ -94,37 +78,32 @@ public class FhirManifest implements ManifestInterface {
   public GeneralStudyModuleInterface getGeneralStudyModule() {
     return new FhirGeneralStudyModule(this);
   }
-
   @Override
   public ManifestInterface setGeneralStudyModule(GeneralStudyModuleInterface generalStudyModule) {
     FhirGeneralStudyModule fhirGeneralStudyModule = new FhirGeneralStudyModule( this );
     ModelUtil.copyGeneralStudyModuleData( generalStudyModule, fhirGeneralStudyModule );
     return this;
   }
-
   @Override
-  public GeneralEquipmentModuleInterface getGeneralEquipmentModule() {
-    return new FhirGeneralEquipmentModule( this );
-  }
-  @Override
-  public ManifestInterface setGeneralEquipmentModule(GeneralEquipmentModuleInterface generalEquipmentModule) {
-    ModelUtil.copyGeneralEquipmentModule( generalEquipmentModule, getGeneralEquipmentModule() );
+  public ManifestInterface setManifestAuthor(FhirManifestAuthor manifestAuthor) {
+    ModelUtil.copyManifestAuthor( manifestAuthor, getManifestAuthor() );
     return this;
   }
 
-  public Optional<ImagingStudy> getImagingStudy() {
-    return  Optional.ofNullable( imagingStudy );
+  @Override
+  public FhirManifestAuthor getManifestAuthor() {
+    return new FhirManifestAuthor( this );
   }
+
+
+
+
 
   public ImagingStudy ensureImagingStudy() {
     if ( this.imagingStudy == null ) {
       this.imagingStudy = new ImagingStudy();
     }
     return this.imagingStudy;
-  }
-
-  public Optional<ServiceRequest> getRequestedProcedure() {
-    return Optional.ofNullable(this.requestedProcedure);
   }
 
   public ServiceRequest ensureRequestedProcedure() {
@@ -137,48 +116,10 @@ public class FhirManifest implements ManifestInterface {
     return this.requestedProcedure;
   }
 
-  public Optional<Device> getMainGeneralEquipmentDevice() {
-    return Optional.ofNullable( this.mainGeneralEquipmentDevice);
-  }
-  Device ensureGeneralEquipmentDevice() {
-    if ( this.mainGeneralEquipmentDevice == null ) {
-      this.mainGeneralEquipmentDevice = (Device) new Device()
-          .setId("general-equipment-device")
-      ;
-      this.generalEquipmentDevices.add( this.mainGeneralEquipmentDevice );
-      for( ImagingStudy.ImagingStudySeriesComponent series: imagingStudy.getSeries() ) {
-        if ( !getGeneralEquipmentDevice( series ).isPresent() ) {
-          series.addPerformer( new ImagingStudy.ImagingStudySeriesPerformerComponent()
-              .setFunction( new CodeableConcept().addCoding( new Coding()
-                  .setSystem( "http://terminology.hl7.org/CodeSystem/v3-ParticipationType" )
-                  .setCode( "DEV" )
-              ) )
-              .setActor( new Reference().setReference( "Device/" + this.mainGeneralEquipmentDevice.getId() ) )
-          );
-        }
-      }
 
-    }
-    return this.mainGeneralEquipmentDevice;
-  }
-
-  Optional<Device> getGeneralEquipmentDevice( ImagingStudy.ImagingStudySeriesComponent series ) {
-    if ( series.hasPerformer() ) {
-      for ( var performer : series.getPerformer() ) {
-        if ( performer.hasFunction() &&
-            performer.getFunction().hasCoding(  "http://terminology.hl7.org/CodeSystem/v3-ParticipationType", "DEV" )
-        ) {
-          return Optional.ofNullable(
-              (Device) getResourceFromBundle( bundle, performer.getActor().getReference() )
-          );
-        }
-      }
-    }
-    return Optional.empty();
-  }
-
-  public Optional<Provenance> getManifestAuthor() {
-    return Optional.ofNullable(this.manifestAuthor);
+  @Override
+  public ManifestInterface setManifestAuthor(GeneralEquipmentModuleInterface generalEquipmentModule) {
+    return null;
   }
 
 

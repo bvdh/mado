@@ -2,6 +2,7 @@ package org.hl7eu.imagingmanifest.model;
 
 import org.dcm4che3.data.Attributes;
 import org.hl7eu.imagingmanifest.dicom.DicomGeneralEquipmentModule;
+import org.hl7eu.imagingmanifest.fhir.FhirManifestAuthor;
 
 public class ModelUtil {
   public static void copyPatientModuleData(PatientModuleInterface source, PatientModuleInterface target) {
@@ -47,5 +48,11 @@ public class ModelUtil {
     source.getCodingSchemeDesignator().ifPresent(target::setCodingSchemeDesignator);
     source.getCodingSchemeVersion().ifPresent(target::setCodingSchemeVersion);
     source.getCodeMeaning().ifPresent(target::setCodeMeaning);
+  }
+
+  public static void copyManifestAuthor(FhirManifestAuthor source, FhirManifestAuthor target) {
+    source.getInstitutionCodeSequence().ifPresent(target::setInstitutionCodeSequence);
+    source.getInstitutionName().ifPresent(target::setInstitutionName);
+    source.getManufacturer().ifPresent(target::setManufacturer);
   }
 }

@@ -1,8 +1,6 @@
 package org.hl7eu.imagingmanifest.model;
 
-import org.hl7eu.imagingmanifest.imagingmanifest.manifest.kos1.GeneralEquipmentModule;
-
-import java.util.Optional;
+import org.hl7eu.imagingmanifest.fhir.FhirManifestAuthor;
 
 public interface ManifestInterface {
 
@@ -11,9 +9,14 @@ public interface ManifestInterface {
 
 
   public GeneralStudyModuleInterface getGeneralStudyModule();
-  public ManifestInterface setGeneralStudyModule(GeneralStudyModuleInterface generalStudyModule );
 
-  public GeneralEquipmentModuleInterface getGeneralEquipmentModule();
-  public ManifestInterface setGeneralEquipmentModule(GeneralEquipmentModuleInterface generalEquipmentModule);
+  ManifestInterface setGeneralStudyModule(GeneralStudyModuleInterface generalStudyModule);
+
+  public ManifestInterface setManifestAuthor(GeneralStudyModuleInterface generalStudyModule );
+
+  ManifestInterface setManifestAuthor(FhirManifestAuthor mafiestAuthor);
+
+  public FhirManifestAuthor getManifestAuthor();
+  public ManifestInterface setManifestAuthor(GeneralEquipmentModuleInterface generalEquipmentModule);
 
 }

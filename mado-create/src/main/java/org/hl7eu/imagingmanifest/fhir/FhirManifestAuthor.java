@@ -1,10 +1,10 @@
-﻿package org.hl7eu.imagingmanifest.fhir;
+package org.hl7eu.imagingmanifest.fhir;
 
-import org.hl7.fhir.r4.model.Coding;
-import org.hl7.fhir.r4.model.Device;
+import org.hl7.fhir.r4.model.*;
 import org.hl7eu.imagingmanifest.model.CodeSequenceInterface;
 import org.hl7eu.imagingmanifest.model.ManifestAuthorInterface;
 
+import java.util.List;
 import java.util.Optional;
 
 public class FhirManifestAuthor implements ManifestAuthorInterface {
@@ -12,60 +12,47 @@ public class FhirManifestAuthor implements ManifestAuthorInterface {
   private final Coding deviceAutorCode = new Coding("http://terminology.hl7.org/CodeSystem/provenance-participant-type", "assembler ", null);
   private final Coding institutionCode = new Coding("http://terminology.hl7.org/CodeSystem/provenance-participant-type", "author ", null);
 
-  FhirManifestAuthor(FhirManifest manifest ) {
+  FhirManifestAuthor( FhirManifest manifest ) {
     this.manifest = manifest;
   }
+
   @Override
   public Optional<String> getManufacturer() {
-    manifest.getManifestAuthor().ifPresent( author -> {
-      if ( author.hasAgent() ){
-        for( var agent : author.getAgent() ) {
-          if ( agent.hasType() && agent.getType().hasCoding("http://terminology.hl7.org/CodeSystem/provenance-participant-type", "author ")) {
-            return manifest.getResourceFromBundle( agent.getWho() ).map( resource -> {);
-              if ( resource instanceof Device) {
-                return ((Device)resource).getManufacturer();
-              }
-              return Optional.empty();
-            } );
-          }
-        }
-      }
-    } );
-    return Optional.empty();
+    return Optional.ofNullable(manifest.a.map( Device::getManufacturer );
   }
 
   @Override
   public ManifestAuthorInterface setManufacturer(String manufacturer) {
-    manifest.ensureManifestAuthor().ifPresent( author -> {
-      if ( author.hasAgent() ){
-        for( var agent : author.getAgent() ) {
-          if ( agent.hasType() && agent.getType().hasCoding("http://terminology.hl7.org/CodeSystem/provenance-participant-type", "author ")) {
-            manifest.getResourceFromBundle( agent.getWho() ).ifPresent( resource -> {
-              if ( resource instanceof Device) {
-                ((Device)resource).setManufacturer( manufacturer );
-              }
-            } );
-          }
-        }
-      }
-    } );
+    if ( manifestAuthorDevice == null ) {
+      this.manifestAuthorDevice = (Device) new Device().setId("ManifestAuthor");
+    }
+    this.manifestAuthorDevice.setManufacturer(manufacturer);
     return this;
   }
 
   @Override
   public Optional<String> getInstitutionName() {
-    return Optional.empty();
+    return Optional.ofNullable( this.manifestAuthorOrganization ).map( Organization::getName );
   }
 
   @Override
   public ManifestAuthorInterface setInstitutionName(String institutionName) {
-    return null;
+    if ( manifestAuthorOrganization == null ) {
+      this.manifestAuthorOrganization = (Organization) new Organization().setId("ManifestAuthorInstitution");
+    }
+    manifestAuthorOrganization.setName( institutionName );
+    return this;
   }
 
   @Override
   public Optional<CodeSequenceInterface> getInstitutionCodeSequence() {
-    return Optional.empty();
+    return Optional.ofNullable( this.manifestAuthorOrganization )
+        .map(Organization::getType)
+        .filter( types -> !types.isEmpty() )
+        .map( types -> types.get(0).getCodingFirstRep() )
+        .map(FhirCodeSequence::new);
   }
+
 
   @Override
   public ManifestAuthorInterface setInstitutionCodeSequence(CodeSequenceInterface institutionCodeSequence) {

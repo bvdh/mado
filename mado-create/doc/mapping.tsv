@@ -1,0 +1,9 @@
+﻿Manifest, ,KOS, FHIR,
+PatientModule,,PatientModule,
+, patientID,patientID
+, patientName,
+, issuerOfPatientID,
+, otherPatientNames,
+, patientBirthDate,
+, patientSex,
+, otherPatientIDs,
