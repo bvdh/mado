@@ -4,12 +4,22 @@ import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.PersonName;
 import org.hl7.fhir.r4.model.*;
 import org.hl7eu.imagingmanifest.dicom.DicomOtherPatientIDsSequence;
+import org.hl7eu.imagingmanifest.model.IssuerOfPatientIdInterface;
 import org.hl7eu.imagingmanifest.model.ModelUtil;
 import org.hl7eu.imagingmanifest.model.OtherPatientIDsSequenceInterface;
 import org.hl7eu.imagingmanifest.model.PatientModuleInterface;
 
 import java.util.*;
 
+/*******************************************************************
+ * FHIR Patient Module
+ *
+ * @see <a href="https://www.hl7.org/fhir/patient.html">FHIR Patient Resource</a>
+ * Design choices:
+ *  First patient id -> identifier.use = usual
+ *  Other patient ids -> identifier.use = secondary
+ *******************************************************************
+ */
 public class FhirPatientModule implements PatientModuleInterface {
   private Patient patient;
   FhirPatientModule( Patient patient ) { this.patient = patient !=null ? patient : new Patient(); }
@@ -76,19 +86,22 @@ public class FhirPatientModule implements PatientModuleInterface {
 
   @Override
   public Optional<String> getPatientID() {
-    if ( patient.hasIdentifier() && !patient.getIdentifier().isEmpty() ) {
-      return Optional.ofNullable( patient.getIdentifierFirstRep().getValue() );
-    }
-    return Optional.empty();
+    Optional<Identifier> mainIdentifier = getMainPatientIdentifier();
+    String result = mainIdentifier.isPresent() && mainIdentifier.get().hasValue()
+        ? mainIdentifier.get().getValue().replace("urn:oid:","")
+        : null;
+    return Optional.ofNullable(result);
   }
 
   @Override
   public PatientModuleInterface setPatientID(String patientID) {
-    if ( patient.hasIdentifier() && !patient.getIdentifier().isEmpty() ) {
-      patient.getIdentifierFirstRep().setValue( patientID );
+    Optional<Identifier> mainIdentifier = getMainPatientIdentifier();
+
+    if ( mainIdentifier.isPresent() ) {
+      mainIdentifier.get().setValue( patientID );
     } else {
       Identifier identifier = new Identifier();
-      identifier.setValue( patientID );
+      identifier.setValue( "urn:oid:"+patientID );
       identifier.setUse( Identifier.IdentifierUse.USUAL ); // identifiese first
       patient.addIdentifier( identifier );
     }
@@ -96,24 +109,48 @@ public class FhirPatientModule implements PatientModuleInterface {
   }
   @Override
   public Optional<String> getIssuerOfPatientID() {
-    if ( patient.hasIdentifier() && !patient.getIdentifier().isEmpty() ) {
-      return Optional.ofNullable( patient.getIdentifierFirstRep().getSystem() );
-    }
-    return Optional.empty();
+    Optional<Identifier> mainIdentifier = getMainPatientIdentifier();
+    return mainIdentifier.flatMap( identifier -> Optional.ofNullable( identifier.getSystem() ) );
   }
 
   @Override
   public PatientModuleInterface setIssuerOfPatientID(String issuerOfPatientID) {
-    if ( patient.hasIdentifier() && !patient.getIdentifier().isEmpty() ) {
-      patient.getIdentifierFirstRep().setSystem( issuerOfPatientID );
+    Optional<Identifier> mainIdentifier = getMainPatientIdentifier();
+    if ( mainIdentifier.isPresent() ) {
+      mainIdentifier.get().setSystem( issuerOfPatientID );
     } else {
       Identifier identifier = new Identifier();
       identifier.setSystem( issuerOfPatientID );
+      identifier.setUse( Identifier.IdentifierUse.USUAL ); // identifiese first
       patient.addIdentifier( identifier );
     }
     return this;
   }
 
+  @Override
+  public Optional<IssuerOfPatientIdInterface> getIssuerOfPatientIDQualifiers() {
+    Optional<Identifier> mainIdentifierOpt = getMainPatientIdentifier();
+    if ( mainIdentifierOpt.isPresent() ) { return Optional.empty(); }
+
+    Identifier identifier = mainIdentifierOpt.get();
+    FhirIssuerOfPatientId issuer = new FhirIssuerOfPatientId( identifier );
+    return Optional.of( issuer );
+  }
+
+  @Override
+  public PatientModuleInterface setIssuerOfPatientID(IssuerOfPatientIdInterface issuerOfPatientID) {
+    return null;
+  }
+
+  Optional<Identifier> getMainPatientIdentifier() {
+    if ( patient.hasIdentifier() && !patient.getIdentifier().isEmpty() ) {
+      return patient.getIdentifier().stream()
+          .filter(Identifier::hasUse)
+          .filter(identifier -> identifier.getUse().equals(Identifier.IdentifierUse.USUAL))
+          .findFirst();
+    }
+    return Optional.empty();
+  }
   @Override
   public List<PersonName> getOtherPatientNames() {
     if ( patient.hasName() && patient.getName().size()>1 ) {
@@ -184,7 +221,7 @@ public class FhirPatientModule implements PatientModuleInterface {
 
   @Override
   public PatientModuleInterface setOtherPatientIDsSequence( List<? extends OtherPatientIDsSequenceInterface> otherPatientIDsSequence) {
-    Optional<Identifier> mainIdentifier = patient.getIdentifier().stream().filter(identifier -> identifier.getUse() == Identifier.IdentifierUse.USUAL ).findFirst();
+    Optional<Identifier> mainIdentifier = getMainPatientIdentifier();
 
     List<Identifier> identifiers = new ArrayList<Identifier>();
     mainIdentifier.ifPresent(identifiers::add);
@@ -193,9 +230,12 @@ public class FhirPatientModule implements PatientModuleInterface {
       Identifier identifier = new Identifier();
       identifier.setUse( Identifier.IdentifierUse.SECONDARY ); // identifiese other
       ModelUtil.copyOtherPatientIDsSequence( otherIdentifier, new FhirOtherPatientIDsSequence(identifier) );
+      if ( !identifier.getSystem().startsWith( "urn:uuid:" ) ) { identifier.setSystem( "urn:oid:"+identifier.getSystem() ); }
       identifiers.add( identifier );
     });
     patient.setIdentifier( identifiers );
     return this;
   }
+
+
 }

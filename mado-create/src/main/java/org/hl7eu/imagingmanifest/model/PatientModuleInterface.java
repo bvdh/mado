@@ -22,6 +22,9 @@ public interface PatientModuleInterface {
   Optional<String> getIssuerOfPatientID();
   PatientModuleInterface setIssuerOfPatientID( String issuerOfPatientID );
 
+  Optional<IssuerOfPatientIdInterface> getIssuerOfPatientIDQualifiers();
+  PatientModuleInterface setIssuerOfPatientID( IssuerOfPatientIdInterface issuerOfPatientID );
+
   List<PersonName> getOtherPatientNames();
   PatientModuleInterface addOtherPatientName( PersonName name );
 

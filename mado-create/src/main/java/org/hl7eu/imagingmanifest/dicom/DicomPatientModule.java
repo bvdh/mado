@@ -2,6 +2,7 @@ package org.hl7eu.imagingmanifest.dicom;
 
 import org.dcm4che3.data.*;
 import org.dcm4che3.util.DateUtils;
+import org.hl7eu.imagingmanifest.model.IssuerOfPatientIdInterface;
 import org.hl7eu.imagingmanifest.model.ModelUtil;
 import org.hl7eu.imagingmanifest.model.OtherPatientIDsSequenceInterface;
 import org.hl7eu.imagingmanifest.model.PatientModuleInterface;
@@ -82,6 +83,29 @@ public class DicomPatientModule extends Attributes implements PatientModuleInter
   @Override
   public PatientModuleInterface setIssuerOfPatientID(String issuerOfPatientID) {
     attributes.setString(Tag.IssuerOfPatientID, VR.LO, issuerOfPatientID);
+    return this;
+  }
+
+  @Override
+  public Optional<IssuerOfPatientIdInterface> getIssuerOfPatientIDQualifiers() {
+    if ( !attributes.contains( Tag.IssuerOfPatientIDQualifiersSequence ) ) {
+      return Optional.empty();
+    }
+    Sequence seq = attributes.getSequence( Tag.IssuerOfPatientIDQualifiersSequence );
+    if ( seq.isEmpty() ) { return Optional.empty(); }
+    DicomIssuerOfPatientId dicomIssuer = new DicomIssuerOfPatientId( seq.get(0) );
+    return Optional.of( dicomIssuer );
+  }
+
+  @Override
+  public PatientModuleInterface setIssuerOfPatientID(IssuerOfPatientIdInterface issuerOfPatientID) {
+    Sequence seq = attributes.getSequence( Tag.IssuerOfPatientIDQualifiersSequence );
+    if ( seq == null ) {
+      seq = attributes.newSequence( Tag.IssuerOfPatientIDQualifiersSequence, 0 );
+      seq.add( new Attributes() );
+    }
+    DicomIssuerOfPatientId dicomIssuer = new DicomIssuerOfPatientId( seq.getFirst() );
+    ModelUtil.copyIssuerOfPatientIDData( issuerOfPatientID, dicomIssuer );
     return this;
   }
 

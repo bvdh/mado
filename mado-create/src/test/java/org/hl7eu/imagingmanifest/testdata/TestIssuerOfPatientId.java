@@ -6,9 +6,9 @@ import java.util.Optional;
 
 class TestIssuerOfPatientId implements IssuerOfPatientIdInterface {
 
-  private String universalEntityID;
-  private String universalEntityIDType;
-  private String identifierTypeCode;
+  private String universalEntityID = "TestUniversalEntityID";
+  private String universalEntityIDType = "ISO";
+  private String identifierTypeCode = "TEXT";
 
   @Override
   public Optional<String> getUniversalEntityID() {

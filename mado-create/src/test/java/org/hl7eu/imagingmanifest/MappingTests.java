@@ -6,6 +6,7 @@ import org.hl7eu.imagingmanifest.fhir.FhirManifest;
 import org.hl7eu.imagingmanifest.dicom.DicomManifest;
 import org.hl7eu.imagingmanifest.kos1.KosManifest;
 import org.hl7eu.imagingmanifest.testdata.ManifestTestUtil;
+import org.hl7eu.imagingmanifest.testdata.TestKosManufacturer;
 import org.hl7eu.imagingmanifest.testdata.TestManifest;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +16,7 @@ public class MappingTests {
 //    TestManistModel testManistModel = new TestManistModel();
     FhirManifest fhirManifest = new FhirManifest( new Bundle() );
     DicomManifest dicomManifest = new DicomManifest( new Attributes() );
-    KosManifest kosManifest = new KosManifest( fhirManifest );
+    KosManifest kosManifest = new KosManifest( fhirManifest, new TestKosManufacturer() );
 
     ManifestTestUtil.testWetherManifestsAreTheSame( dicomManifest, fhirManifest );
     ManifestTestUtil.testWetherManifestsAreTheSame( dicomManifest, kosManifest );
@@ -30,7 +31,7 @@ public class MappingTests {
     TestManifest testManistModel = new TestManifest();
     FhirManifest fhirManifest = new FhirManifest( testManistModel );
     DicomManifest dicomManifest = new DicomManifest( testManistModel );
-    KosManifest kosManifest = new KosManifest( testManistModel );
+    KosManifest kosManifest = new KosManifest( testManistModel, new TestKosManufacturer() );
 
     ManifestTestUtil.testWetherManifestsAreTheSame( dicomManifest, fhirManifest );
     ManifestTestUtil.testWetherManifestsAreTheSame( dicomManifest, kosManifest );

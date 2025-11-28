@@ -1,6 +1,7 @@
 package org.hl7eu.imagingmanifest.dicom;
 
 import org.dcm4che3.data.Attributes;
+import org.dcm4che3.data.Tag;
 import org.hl7eu.imagingmanifest.model.IssuerOfPatientIdInterface;
 
 import java.util.Optional;
@@ -10,6 +11,8 @@ public class DicomIssuerOfPatientId implements IssuerOfPatientIdInterface {
 
   public DicomIssuerOfPatientId(Attributes issuerAttributes) {
     this.attributes = issuerAttributes;
+    this.attributes.setString(Tag.TypeOfPatientID,  org.dcm4che3.data.VR.CS, "TEXT");
+    this.attributes.setString(Tag.UniversalEntityID,  org.dcm4che3.data.VR.CS, "ISO");
   }
 
   @Override

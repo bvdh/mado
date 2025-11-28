@@ -1,9 +1,7 @@
 package org.hl7eu.imagingmanifest.model;
 
-import org.dcm4che3.data.Sequence;
-import org.hl7eu.imagingmanifest.dicom.DicomOtherPatientIDsSequence;
-
-import java.util.Optional;
+import org.dcm4che3.data.Attributes;
+import org.hl7eu.imagingmanifest.dicom.DicomGeneralEquipmentModule;
 
 public class ModelUtil {
   public static void copyPatientModuleData(PatientModuleInterface source, PatientModuleInterface target) {
@@ -27,6 +25,27 @@ public class ModelUtil {
     source.getPatientID().ifPresent( target::setPatientID );
     source.getIssuerOfPatientID().ifPresent( target::setIssuerOfPatientID );
     source.getTypeOfPatientID().ifPresent( target::setTypeOfPatientID );
-    target.getIssuerOfPatientIDQualifier().ifPresent( source::setIssuerOfPatientIDQualifier );
+    source.getIssuerOfPatientIDQualifier().ifPresent( target::setIssuerOfPatientIDQualifier );
+  }
+
+  public static void copyGeneralStudyModuleData(GeneralStudyModuleInterface source, GeneralStudyModuleInterface target) {
+    source.getStudyInstanceUID().ifPresent(target::setStudyInstanceUID);
+    source.getAccessionNumber().ifPresent(target::setAccessionNumber);
+    source.getStudyDate().ifPresent(target::setStudyDate);
+    source.getStudyTime().ifPresent(target::setStudyTime);
+    source.getIssuerOfAccessionNumber().ifPresent(target::setIssuerOfAccessionNumber);
+  }
+
+  public static void copyGeneralEquipmentModule(GeneralEquipmentModuleInterface source, GeneralEquipmentModuleInterface target ){
+    source.getManufacturer().ifPresent(target::setManufacturer);
+    source.getInstitutionName().ifPresent(target::setInstitutionName);
+    source.getInstitutionCodeSequence().ifPresent(target::setInstitutionCodeSequence);
+  }
+
+  public static void copyCodeSequence(CodeSequenceInterface source, CodeSequenceInterface target) {
+    source.getCodeValue().ifPresent(target::setCodeValue);
+    source.getCodingSchemeDesignator().ifPresent(target::setCodingSchemeDesignator);
+    source.getCodingSchemeVersion().ifPresent(target::setCodingSchemeVersion);
+    source.getCodeMeaning().ifPresent(target::setCodeMeaning);
   }
 }

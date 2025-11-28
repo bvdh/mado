@@ -25,7 +25,10 @@ public class FhirOtherPatientIDsSequence implements OtherPatientIDsSequenceInter
 
   @Override
   public Optional<String> getIssuerOfPatientID() {
-    return Optional.ofNullable( identifier.getSystem() );
+    if ( identifier.getSystem() == null ) {
+      return Optional.empty();
+    }
+    return Optional.of( identifier.getSystem().replace("urn:oid:", "") );
   }
 
   @Override

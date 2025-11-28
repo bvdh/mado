@@ -34,6 +34,16 @@ public class EmptyPatientModule implements PatientModuleInterface{
 
   @Override
   public PatientModuleInterface setIssuerOfPatientID(String issuerOfPatientID) {
+    return this;
+  }
+
+  @Override
+  public Optional<IssuerOfPatientIdInterface> getIssuerOfPatientIDQualifiers() {
+    return Optional.empty();
+  }
+
+  @Override
+  public PatientModuleInterface setIssuerOfPatientID(IssuerOfPatientIdInterface issuerOfPatientID) {
     return null;
   }
 

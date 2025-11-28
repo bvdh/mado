@@ -1,6 +1,7 @@
 package org.hl7eu.imagingmanifest.testdata;
 
 import org.dcm4che3.data.PersonName;
+import org.hl7eu.imagingmanifest.model.IssuerOfPatientIdInterface;
 import org.hl7eu.imagingmanifest.model.OtherPatientIDsSequenceInterface;
 import org.hl7eu.imagingmanifest.model.PatientModuleInterface;
 
@@ -47,6 +48,16 @@ public class TestPatientModule implements PatientModuleInterface {
   @Override
   public PatientModuleInterface setIssuerOfPatientID(String issuerOfPatientID) {
     setIssuerOfPatientID( issuerOfPatientID );
+    return this;
+  }
+
+  @Override
+  public Optional<IssuerOfPatientIdInterface> getIssuerOfPatientIDQualifiers() {
+    return Optional.of( new TestIssuerOfPatientId() );
+  }
+
+  @Override
+  public PatientModuleInterface setIssuerOfPatientID(IssuerOfPatientIdInterface issuerOfPatientID) {
     return this;
   }
 
